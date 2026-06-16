@@ -1,0 +1,22 @@
+{
+  "vertices": [
+    { "id": "A", "nome": "Centro" },
+    { "id": "B", "nome": "Bairro Norte" },
+    { "id": "C", "nome": "Zona Sul" },
+    { "id": "D", "nome": "Distrito Industrial" },
+    { "id": "E", "nome": "Aeroporto" }
+  ],
+  "grafo": {
+    "A": [
+      { "destino": "B", "peso": 4 },
+      { "destino": "C", "peso": 2 }
+    ],
+    "B": [{ "destino": "E", "peso": 8 }],
+    "C": [
+      { "destino": "D", "peso": 3 },
+      { "destino": "E", "peso": 9 }
+    ],
+    "D": [{ "destino": "E", "peso": 2 }],
+    "E": []
+  }
+}
