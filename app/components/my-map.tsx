@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
-// Importação dinâmica com desativação de SSR para o Leaflet funcionar perfeitamente no Next.js
+// Importação dinâmica do Leaflet com desativação de SSR (Server-Side Rendering)
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false },
@@ -24,8 +24,7 @@ const Polyline = dynamic(
   { ssr: false },
 );
 
-// COORDENADAS REAIS SINCRONIZADAS PARA MARÍLIA/SP
-// Corrigido: Movidas de Presidente Prudente de volta para o perímetro urbano de Marília
+// COORDENADAS REAIS SINCRONIZADAS EM MARÍLIA/SP
 const coordenadasNos: {
   [key: string]: { lat: number; lng: number; nome: string };
 } = {
@@ -36,7 +35,6 @@ const coordenadasNos: {
   E: { lat: -22.202, lng: -49.905, nome: "Aeroporto" },
 };
 
-// Estrutura de caminhos do grafo (mapa.json)
 const conexoesRuas = [
   { de: "A", para: "B" },
   { de: "A", para: "C" },
@@ -52,33 +50,42 @@ interface MeuMapaProps {
 
 export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
   const [mapa, setMapa] = useState<any>(null);
+  const [customIcon, setCustomIcon] = useState<any>(null);
 
-  // Corrige os caminhos dos marcadores padrão do Leaflet no ecossistema do Next.js
+  // Inicializa o ícone personalizado para evitar quebra de caminhos de imagem no Next.js
   useEffect(() => {
     if (typeof window !== "undefined") {
       const L = require("leaflet");
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-        iconUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+
+      // Criando um ponto (dot) moderno e brilhante via HTML/CSS nativo
+      const iconePontinho = L.divIcon({
+        className: "custom-div-icon",
+        html: `<div style="
+          background-color: #3b82f6; 
+          width: 14px; 
+          height: 14px; 
+          border-radius: 50%; 
+          border: 2px solid #ffffff; 
+          box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
       });
+
+      setCustomIcon(iconePontinho);
     }
   }, []);
 
-  // Força o mapa a recalcular o tamanho da div e atualizar as imagens de satélite
+  // Força atualização de tamanho da janela gráfica para evitar o "bug do mapa cinza"
   useEffect(() => {
     if (mapa) {
       setTimeout(() => {
         mapa.invalidateSize();
-      }, 300);
+      }, 250);
     }
   }, [mapa]);
 
-  // Controla o movimento inteligente de zoom nas rotas
+  // Controle de enquadramento (FlyToBounds)
   useEffect(() => {
     if (!mapa) return;
 
@@ -90,14 +97,13 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
 
       if (pontosDaRota.length > 0) {
         mapa.flyToBounds(pontosDaRota, {
-          paddingTopLeft: [50, 50],
-          paddingBottomRight: [50, 220], // Garante que a rota fique visível acima do painel flutuante inferior
-          duration: 1.5,
+          paddingTopLeft: [40, 40],
+          paddingBottomRight: [40, 180], // Margem de segurança para o rodapé
+          duration: 1.2,
           animate: true,
         });
       }
     } else {
-      // Centro geométrico inicial de Marília/SP
       mapa.setView([-22.2142, -49.935], 13, { animate: true });
     }
   }, [caminhoCalculado, mapa]);
@@ -122,13 +128,12 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
         zoomControl={false}
         ref={setMapa}
       >
-        {/* Camada de visualização escura estável para destacar os grafos */}
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution="&copy; OpenStreetMap"
         />
 
-        {/* Renderização das Polylines (Arestas do Grafo) */}
+        {/* Renderização Segura das Arestas (Linhas) */}
         {conexoesRuas.map((rua, idx) => {
           const p1 = coordenadasNos[rua.de];
           const p2 = coordenadasNos[rua.para];
@@ -144,27 +149,31 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
                 [p2.lat, p2.lng],
               ]}
               pathOptions={{
-                color: ativa ? "#10b981" : "#3b82f6", // Verde esmeralda para rota ativa, Azul para conexões normais
-                weight: ativa ? 7 : 4,
-                opacity: ativa ? 1.0 : 0.5,
+                color: ativa ? "#10b981" : "#3b82f6",
+                weight: ativa ? 6 : 3,
+                opacity: ativa ? 1.0 : 0.4,
               }}
             />
           );
         })}
 
-        {/* Renderização dos Marcadores (Vértices do Grafo) */}
-        {Object.entries(coordenadasNos).map(([id, no]) => (
-          <Marker key={`no-${id}`} position={[no.lat, no.lng]}>
-            <Popup>
-              <div className="text-slate-900 p-1 font-sans">
-                <strong className="block text-sm">{no.nome}</strong>
-                <span className="text-xs text-slate-500">
-                  ID do Vértice: {id}
-                </span>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {/* Renderização Segura dos Vértices (Pontinhos) */}
+        {customIcon &&
+          Object.entries(coordenadasNos).map(([id, no]) => (
+            <Marker
+              key={`no-${id}`}
+              position={[no.lat, no.lng]}
+              icon={customIcon}
+            >
+              <Popup>
+                <div className="text-slate-950 p-0.5 font-sans">
+                  <strong>
+                    {no.nome} ({id})
+                  </strong>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
       </MapContainer>
     </div>
   );
