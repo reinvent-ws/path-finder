@@ -6,7 +6,7 @@ export default function Logo() {
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="invert text-black hover:text-blue-700 transition-colors" // Estilização suave com Tailwind
+      className="text-white hover:text-orange-400 transition-colors" // Estilização suave com Tailwind
     >
       {/* Caminho/Rota Suave de fundo */}
       <path
