@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
-// Importação dinâmica do Leaflet com desativação de SSR (Server-Side Rendering)
+// Importação dinâmica com desativação de SSR para evitar quebra de tiles no Next.js
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false },
@@ -24,7 +24,7 @@ const Polyline = dynamic(
   { ssr: false },
 );
 
-// COORDENADAS REAIS SINCRONIZADAS EM MARÍLIA/SP
+// Suas coordenadas mapeadas (Exemplo base: Marília/SP)
 const coordenadasNos: {
   [key: string]: { lat: number; lng: number; nome: string };
 } = {
@@ -52,61 +52,35 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
   const [mapa, setMapa] = useState<any>(null);
   const [customIcon, setCustomIcon] = useState<any>(null);
 
-  // Inicializa o ícone personalizado para evitar quebra de caminhos de imagem no Next.js
+  // Recria os pontinhos usando HTML/CSS puro para que fiquem fixos nos quadradinhos
   useEffect(() => {
     if (typeof window !== "undefined") {
       const L = require("leaflet");
-
-      // Criando um ponto (dot) moderno e brilhante via HTML/CSS nativo
       const iconePontinho = L.divIcon({
-        className: "custom-div-icon",
+        className: "custom-grafo-node",
         html: `<div style="
-          background-color: #3b82f6; 
+          background-color: #2563eb; 
           width: 14px; 
           height: 14px; 
           border-radius: 50%; 
-          border: 2px solid #ffffff; 
-          box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+          border: 2.5px solid #ffffff; 
+          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
         "></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7],
       });
-
       setCustomIcon(iconePontinho);
     }
   }, []);
 
-  // Força atualização de tamanho da janela gráfica para evitar o "bug do mapa cinza"
+  // Força o Leaflet a recalcular o mosaico de imagens caso a tela mude de tamanho
   useEffect(() => {
     if (mapa) {
       setTimeout(() => {
         mapa.invalidateSize();
       }, 250);
     }
-  }, [mapa]);
-
-  // Controle de enquadramento (FlyToBounds)
-  useEffect(() => {
-    if (!mapa) return;
-
-    if (caminhoCalculado && caminhoCalculado.length >= 2) {
-      const pontosDaRota = caminhoCalculado
-        .map((id) => coordenadasNos[id])
-        .filter(Boolean)
-        .map((p) => [p.lat, p.lng] as [number, number]);
-
-      if (pontosDaRota.length > 0) {
-        mapa.flyToBounds(pontosDaRota, {
-          paddingTopLeft: [40, 40],
-          paddingBottomRight: [40, 180], // Margem de segurança para o rodapé
-          duration: 1.2,
-          animate: true,
-        });
-      }
-    } else {
-      mapa.setView([-22.2142, -49.935], 13, { animate: true });
-    }
-  }, [caminhoCalculado, mapa]);
+  }, [mapa, caminhoCalculado]);
 
   const ruaEstaNoCaminho = (de: string, para: string) => {
     if (!caminhoCalculado || caminhoCalculado.length < 2) return false;
@@ -120,7 +94,7 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
   };
 
   return (
-    <div className="absolute inset-0 w-full h-full m-0 p-0 block z-0 bg-slate-950">
+    <div className="absolute inset-0 w-full h-full block z-0 bg-[#ccc]">
       <MapContainer
         center={[-22.2142, -49.935]}
         zoom={13}
@@ -128,12 +102,13 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
         zoomControl={false}
         ref={setMapa}
       >
+        {/* Usando o Tile do OpenStreetMap Light para carregar rápido e sem fragmentação */}
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution="&copy; OpenStreetMap"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenStreetMap contributors"
         />
 
-        {/* Renderização Segura das Arestas (Linhas) */}
+        {/* Linhas Azuis e Verdes */}
         {conexoesRuas.map((rua, idx) => {
           const p1 = coordenadasNos[rua.de];
           const p2 = coordenadasNos[rua.para];
@@ -149,15 +124,15 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
                 [p2.lat, p2.lng],
               ]}
               pathOptions={{
-                color: ativa ? "#10b981" : "#3b82f6",
+                color: ativa ? "#10b981" : "#2563eb", // Verde na rota, Azul nas outras
                 weight: ativa ? 6 : 3,
-                opacity: ativa ? 1.0 : 0.4,
+                opacity: ativa ? 1.0 : 0.6,
               }}
             />
           );
         })}
 
-        {/* Renderização Segura dos Vértices (Pontinhos) */}
+        {/* Pontinhos do Grafo */}
         {customIcon &&
           Object.entries(coordenadasNos).map(([id, no]) => (
             <Marker
@@ -166,10 +141,8 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
               icon={customIcon}
             >
               <Popup>
-                <div className="text-slate-950 p-0.5 font-sans">
-                  <strong>
-                    {no.nome} ({id})
-                  </strong>
+                <div className="text-slate-900 font-sans font-medium text-xs">
+                  {no.nome} ({id})
                 </div>
               </Popup>
             </Marker>
