@@ -94,7 +94,7 @@ export default function MeuMapa({ caminhoCalculado = [] }: MeuMapaProps) {
   };
 
   return (
-    <div className="absolute inset-0 w-full h-full block z-0 bg-[#ccc]">
+    <div className="absolute inset-0 w-full h-full block z-0 bg-transparent">
       <MapContainer
         center={[-22.2142, -49.935]}
         zoom={13}

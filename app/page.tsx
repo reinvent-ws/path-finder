@@ -122,18 +122,18 @@ export default function Roteador() {
       <MeuMapa caminhoCalculado={resultado?.caminho} />
 
       {/* Painel Centralizado Retornado com Sucesso para o Rodapé (Footer) */}
-      <div className="absolute left-1/2 bottom-8 -translate-x-1/2 w-[92%] max-w-4xl p-5 flex flex-col z-10 rounded-xl bg-slate-900/90 backdrop-blur-md shadow-2xl border border-white/10 transition-all max-h-[40vh] overflow-y-auto">
+      <div className="absolute left-1/2 bottom-8 -translate-x-1/2 w-[92%] max-w-4xl p-5 flex flex-col z-10 rounded-xl bg-black/10 backdrop-blur-md shadow-2xl border border-black/10 transition-all max-h-[40vh] overflow-y-auto">
         {/* Topo do Painel */}
-        <div className="w-full flex flex-row items-center justify-between mb-4 border-b border-slate-800 pb-2">
+        <div className="w-full flex flex-row items-center justify-between mb-4 border-b border-black/10 pb-2">
           <div className="flex items-center gap-3">
             <Logo />
-            <h1 className="text-md font-semibold text-white tracking-wide">
+            <h1 className="text-md font-semibold text-gray-600 tracking-wide">
               PathFinder: Otimizador Multi-Paradas
             </h1>
           </div>
 
           {resultado && (
-            <div className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-md font-medium">
+            <div className="text-xs bg-emerald-500 text-emerald-100 border border-emerald-500/30 px-3 py-1 rounded-md font-medium">
               Rota Ativa: {resultado.caminho.join(" → ")} — Total:{" "}
               {resultado.custoTotal} km/min
             </div>
@@ -144,11 +144,11 @@ export default function Roteador() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           {/* Campo Origem */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+            <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wider">
               Ponto de Origem:
             </label>
             <select
-              className="w-full p-2 border border-slate-700 rounded-lg bg-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition"
+              className="w-full p-2 border border-slate-700 rounded-lg bg-transparent text-gray-600 text-xs focus:outline-none focus:border-black transition"
               value={origem}
               onChange={(e) => setOrigem(e.target.value)}
             >
@@ -162,20 +162,20 @@ export default function Roteador() {
 
           {/* Lista Dinâmica de Destinos (Preparado para scroll horizontal no futuro) */}
           <div className="md:col-span-2 flex flex-col gap-2">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider">
               Destinos e Paradas Intermediárias:
             </label>
             <div className="flex flex-wrap gap-3 items-center">
               {destinos.map((destinoId, index) => (
                 <div
                   key={index}
-                  className="flex flex-row items-center gap-1.5 bg-slate-800/80 p-1.5 rounded-lg border border-slate-700"
+                  className="flex flex-row items-center gap-1.5 bg-transparent p-1 rounded-lg border border-slate-700"
                 >
-                  <span className="text-[10px] uppercase font-bold text-slate-400 px-1">
+                  <span className="text-[10px] uppercase font-bold text-gray-600 px-1">
                     {index === destinos.length - 1 ? "Fim" : `P${index + 1}`}
                   </span>
                   <select
-                    className="p-1 border border-slate-600 rounded bg-slate-900 text-slate-200 text-xs focus:outline-none transition"
+                    className="p-1 rounded text-gray-600 text-xs focus:outline-none transition"
                     value={destinoId}
                     onChange={(e) => atualizarDestino(index, e.target.value)}
                   >
@@ -188,7 +188,8 @@ export default function Roteador() {
                   {destinos.length > 1 && (
                     <button
                       onClick={() => removerDestino(index)}
-                      className="text-red-400 hover:text-white hover:bg-red-600/50 px-1.5 rounded text-xs transition"
+                      title="fechar"
+                      className="text-red-400 hover:text-white hover:bg-red-400/50 p-[0.75px] px-1 rounded-full text-[10px] transition cursor-pointer font-light"
                     >
                       ✕
                     </button>
@@ -199,14 +200,14 @@ export default function Roteador() {
               {/* Botão de Adicionar Campo */}
               <button
                 onClick={adicionarDestino}
-                className="py-1 px-2.5 border border-dashed border-slate-600 rounded-lg text-xs font-medium text-slate-400 hover:border-blue-500 hover:text-blue-400 transition bg-slate-800/40"
+                title="Adicionar destino"
+                className="py-1 px-2.5 border border-dashed border-slate-600 rounded-lg text-md font-medium text-slate-600 hover:border-black hover:text-black transition bg-transparent cursor-pointer"
               >
-                + Add destination
+                +
               </button>
             </div>
           </div>
         </div>
-
         {/* Botão de Ação Inferior */}
         <button
           onClick={calcularRotaCompleta}
