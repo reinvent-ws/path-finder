@@ -4,6 +4,8 @@
 
 O **PathFinder** é uma aplicação web interativa desenvolvida em Next.js que utiliza o **Algoritmo de Dijkstra** para encontrar o caminho mais rápido e eficiente entre múltiplos pontos geográficos em uma malha de grafos, totalmente integrada sobre o mapa real de Marília/SP utilizando o Leaflet.
 
+PathFinder is an interactive web application developed in Next.js that uses Dijkstra's Algorithm to find the fastest and most efficient path between multiple geographic points in a graph mesh, fully integrated onto the real map of Marília/SP using Leaflet.
+
 ---
 
 ## 🚀 Funcionalidades Principais
