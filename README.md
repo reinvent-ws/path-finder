@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/114100d4-c5af-4439-819d-dde11c03d3aa" />
 
-## Getting Started
+# 📍 PathFinder: Otimizador de Rotas Multi-Paradas
 
-First, run the development server:
+O **PathFinder** é uma aplicação web interativa desenvolvida em Next.js que utiliza o **Algoritmo de Dijkstra** para encontrar o caminho mais rápido e eficiente entre múltiplos pontos geográficos em uma malha de grafos, totalmente integrada sobre o mapa real de Marília/SP utilizando o Leaflet.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Funcionalidades Principais
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **Algoritmo de Dijkstra Real-Time:** Calcula de forma exata a rota com o menor peso (distância/tempo) entre os nós selecionados.
+* **Múltiplos Destinos (Multi-Stop):** Permite adicionar dinamicamente paradas intermediárias (`+ Add destination`) e calcula de forma sequencial e encadeada a rota completa.
+* **Interface Estilo Google Maps:** Painel de controle moderno fixado no rodapé (`footer`) com suporte a modificações dinâmicas e remoção de paradas individuais.
+* **Visualização em Light Mode:** Mapa claro, limpo e de alta performance baseado na camada do OpenStreetMap, facilitando o destaque visual das rotas.
+* **Feedback Visual de Rotas:** * 🔵 **Linhas Azuis:** Conexões e vias normais do grafo.
+  * 🟢 **Linhas Verdes:** Rota otimizada calculada ativa.
+  * 🔘 **Pontos Azuis:** Vértices/paradas mapeadas no perímetro urbano.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Tecnologias Utilizadas
 
-To learn more about Next.js, take a look at the following resources:
+* **Framework:** [Next.js 14+](https://nextjs.org/) (React)
+* **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+* **Mapas Interativos:** [Leaflet](https://leafletjs.com/) & [React-Leaflet](https://react-leaflet.js.org/)
+* **Provedor de Camadas:** [OpenStreetMap](https://www.openstreetmap.org/)
+* **Lógica Matemática:** Algoritmo de Dijkstra para Grafos Pesados
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📊 Estrutura de Dados (Grafo)
 
-## Deploy on Vercel
+O mapa e as conexões viárias são alimentados dinamicamente por um arquivo estruturado em JSON (`mapa.json`), onde cada vértice possui coordenadas geográficas reais e cada aresta possui um peso correspondente:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+  "vertices": [
+    { "id": "A", "nome": "Centro" },
+    { "id": "B", "nome": "Bairro Norte" }
+  ],
+  "grafo": {
+    "A": [
+      { "destino": "B", "peso": 4 }
+    ]
+  }
+}
